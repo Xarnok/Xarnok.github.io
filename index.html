@@ -7,7 +7,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#A1C6EA">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <!-- Police d'écriture adaptée aux enfants et à la lecture -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap">
     <style>
         :root {
@@ -17,6 +16,7 @@
             --bg: #F4F9FF;
             --card-bg: #FFFFFF;
             --text: #2C3E50;
+            --purple: #9B59B6;
         }
 
         * {
@@ -65,7 +65,6 @@
             position: relative;
         }
 
-        /* Écran de configuration */
         .setup-screen {
             display: flex;
             flex-direction: column;
@@ -84,19 +83,18 @@
             color: var(--primary);
         }
 
-        select {
+        select, input[type="text"] {
             width: 100%;
             padding: 12px 15px;
             font-size: 1.1rem;
             border: 2px solid #BDC3C7;
             border-radius: 12px;
             background-color: #FAFAFA;
-            cursor: pointer;
             outline: none;
             transition: border-color 0.2s;
         }
 
-        select:focus {
+        select:focus, input[type="text"]:focus {
             border-color: var(--primary);
         }
 
@@ -122,17 +120,23 @@
 
         button.secondary {
             background-color: var(--primary);
-            box-shadow: 0 6px 0px #34495E;
             box-shadow: 0 6px 0px #2980B9;
         }
         button.secondary:active {
             box-shadow: 0 2px 0px #2980B9;
         }
 
-        /* Écran de Jeu */
-        .hidden {
-            display: none !important;
+        button.admin-btn {
+            background-color: #95A5A6;
+            box-shadow: 0 4px 0px #7F8C8D;
+            font-size: 1rem;
+            padding: 8px 15px;
+            width: auto;
+            margin-top: 25px;
         }
+        button.admin-btn:active { box-shadow: 0 1px 0px #7F8C8D; }
+
+        .hidden { display: none !important; }
 
         .score-board {
             display: flex;
@@ -145,10 +149,7 @@
             border-radius: 12px;
         }
 
-        .stars {
-            color: #F1C40F;
-            font-size: 1.3rem;
-        }
+        .stars { color: #F1C40F; font-size: 1.3rem; }
 
         .question-box {
             background: #FFF9E6;
@@ -189,21 +190,13 @@
             border-radius: 8px;
         }
 
-        input[type="text"] {
-            padding: 10px 15px;
-            font-size: 1.4rem;
-            border: 3px solid #BDC3C7;
-            border-radius: 12px;
+        #answerInput {
             width: 180px;
             text-align: center;
-            outline: none;
+            font-size: 1.4rem;
+            border: 3px solid #BDC3C7;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--primary);
-        }
-
-        /* Feedback */
         .feedback {
             font-size: 1.3rem;
             font-weight: 600;
@@ -212,33 +205,48 @@
             border-radius: 12px;
             animation: pop 0.3s ease;
         }
+        .feedback.correct { background-color: #E8F8F5; color: var(--success); }
+        .feedback.wrong { background-color: #FCE4D6; color: var(--error); }
 
-        .feedback.correct {
-            background-color: #E8F8F5;
-            color: var(--success);
+        /* Style de la zone Enseignant */
+        .admin-screen {
+            text-align: left;
         }
-
-        .feedback.wrong {
-            background-color: #FCE4D6;
-            color: var(--error);
+        .admin-screen h2 {
+            color: var(--purple);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-align: center;
         }
-
-        @keyframes pop {
-            0% { transform: scale(0.9); }
-            100% { transform: scale(1); }
+        .sub-group {
+            border: 2px solid #E0E0E0;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: #FAFAFA;
         }
+        .sub-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #7F8C8D;
+        }
+        .grid-conjugaison {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 8px;
+            align-items: center;
+        }
+        .grid-conjugaison span { font-weight: 600; }
+        .grid-conjugaison input { padding: 6px 10px; font-size: 1rem; }
 
-        /* Confettis minimalistes CSS pour le succès */
         .confetti {
             position: absolute;
             width: 10px;
             height: 10px;
-            background: red;
             animation: drop 1.5s infinite;
             border-radius: 50%;
             opacity: 0;
         }
-
         @keyframes drop {
             0% { top: 0; opacity: 1; transform: translateX(0) rotate(0deg); }
             100% { top: 100%; opacity: 0; transform: translateX(100px) rotate(360deg); }
@@ -262,6 +270,7 @@
                     <option value="présent">Présent</option>
                     <option value="futur">Futur</option>
                     <option value="imparfait">Imparfait</option>
+                    <!-- Prêt pour le futur : il suffira d'ajouter une ligne ici, ex: <option value="passé composé">Passé Composé</option> -->
                 </select>
             </div>
 
@@ -270,11 +279,13 @@
                 <select id="groupSelect">
                     <option value="1er">1er groupe (en -er : chanter, jouer...)</option>
                     <option value="3eme">Verbes essentiels (être, avoir, aller...)</option>
-                    <option value="tous">Tous les verbes de CE1</option>
+                    <option value="perso">Verbes ajoutés par l'enseignant ✏️</option>
+                    <option value="tous">Tous les verbes</option>
                 </select>
             </div>
 
             <button onclick="startGame()">C'est parti ! 🚀</button>
+            <button class="admin-btn" onclick="showAdmin()">⚙️ Configuration avancée</button>
         </div>
 
         <!-- ÉCRAN DE JEU -->
@@ -291,8 +302,7 @@
 
             <div class="prompt-zone">
                 <span class="pronoun" id="currentPronoun">??</span>
-                <!-- Pas d'attributs vulnérables, traitement sain des entrées -->
-                <input type="text" id="answerInput" autocomplete="off" spaceholder="..." autofocus>
+                <input type="text" id="answerInput" autocomplete="off" placeholder="..." autofocus>
             </div>
 
             <div id="feedbackBox" class="feedback hidden"></div>
@@ -301,11 +311,69 @@
             <button id="homeBtn" class="secondary hidden" onclick="resetGame()" style="margin-top: 10px;">Changer de niveau 🏠</button>
         </div>
 
+        <!-- ÉCRAN ENSEIGNANT (AJOUT DE VERBES) -->
+        <div id="adminScreen" class="admin-screen hidden">
+            <h2>⚙️ Ajouter un verbe personnalisé</h2>
+            
+            <div class="field-group" style="margin-bottom: 12px;">
+                <label for="newInfinitif">Verbe à l'infinitif :</label>
+                <input type="text" id="newInfinitif" placeholder="ex: marcher, finir, prendre...">
+            </div>
+
+            <div class="field-group" style="margin-bottom: 15px;">
+                <label for="newGroup">Groupe du verbe :</label>
+                <select id="newGroup">
+                    <option value="1er">1er groupe (en -er)</option>
+                    <option value="3eme">3ème groupe / Autres</option>
+                </select>
+            </div>
+
+            <div class="sub-group">
+                <h3>Présent de l'indicatif</h3>
+                <div class="grid-conjugaison" id="grid-present">
+                    <span>Je / J'</span><input type="text" class="conj-input" data-time="présent" data-index="0">
+                    <span>Tu</span><input type="text" class="conj-input" data-time="présent" data-index="1">
+                    <span>Il/Elle/On</span><input type="text" class="conj-input" data-time="présent" data-index="2">
+                    <span>Nous</span><input type="text" class="conj-input" data-time="présent" data-index="3">
+                    <span>Vous</span><input type="text" class="conj-input" data-time="présent" data-index="4">
+                    <span>Ils/Elles</span><input type="text" class="conj-input" data-time="présent" data-index="5">
+                </div>
+            </div>
+
+            <div class="sub-group">
+                <h3>Futur</h3>
+                <div class="grid-conjugaison" id="grid-futur">
+                    <span>Je / J'</span><input type="text" class="conj-input" data-time="futur" data-index="0">
+                    <span>Tu</span><input type="text" class="conj-input" data-time="futur" data-index="1">
+                    <span>Il/Elle/On</span><input type="text" class="conj-input" data-time="futur" data-index="2">
+                    <span>Nous</span><input type="text" class="conj-input" data-time="futur" data-index="3">
+                    <span>Vous</span><input type="text" class="conj-input" data-time="futur" data-index="4">
+                    <span>Ils/Elles</span><input type="text" class="conj-input" data-time="futur" data-index="5">
+                </div>
+            </div>
+
+            <div class="sub-group">
+                <h3>Imparfait</h3>
+                <div class="grid-conjugaison" id="grid-imparfait">
+                    <span>Je / J'</span><input type="text" class="conj-input" data-time="imparfait" data-index="0">
+                    <span>Tu</span><input type="text" class="conj-input" data-time="imparfait" data-index="1">
+                    <span>Il/Elle/On</span><input type="text" class="conj-input" data-time="imparfait" data-index="2">
+                    <span>Nous</span><input type="text" class="conj-input" data-time="imparfait" data-index="3">
+                    <span>Vous</span><input type="text" class="conj-input" data-time="imparfait" data-index="4">
+                    <span>Ils/Elles</span><input type="text" class="conj-input" data-time="imparfait" data-index="5">
+                </div>
+            </div>
+
+            <button onclick="saveCustomVerb()">Sauvegarder le verbe 💾</button>
+            <button class="secondary" onclick="hideAdmin()" style="margin-top: 10px;">Retour 🏠</button>
+            <button onclick="clearCustomVerbs()" style="background-color: var(--error); box-shadow: 0 6px 0px #C0392B; margin-top: 15px; font-size: 1rem; padding: 8px;">Effacer tous les verbes personnalisés 🗑️</button>
+        </div>
+
     </div>
 
     <script>
-        // Base de données des verbes au programme de CE1
-        const database = {
+        // 1. Base de données par défaut intégrée
+        const defaultDatabase = {
             "1er": [
                 { infinitif: "chanter", groupe: "1er", conjugaisons: {
                     "présent": ["chante", "chantes", "chante", "chantons", "chantez", "chantent"],
@@ -317,7 +385,7 @@
                     "futur": ["jouerai", "joueras", "jouera", "jouerons", "jouerez", "joueront"],
                     "imparfait": ["jouais", "jouais", "jouait", "jouions", "jouiez", "jouaient"]
                 }},
-                { infinitif: "manger", groupe: "1er", notes: "attention au g", conjugaisons: {
+                { infinitif: "manger", groupe: "1er", conjugaisons: {
                     "présent": ["mange", "manges", "mange", "mangeons", "mangez", "mangent"],
                     "futur": ["mangerai", "mangeras", "mangera", "mangerons", "mangerez", "mangeront"],
                     "imparfait": ["mangeais", "mangeais", "mangeait", "mangions", "mangiez", "mangeaient"]
@@ -349,15 +417,94 @@
                     "futur": ["dirai", "diras", "dira", "dirons", "direz", "diront"],
                     "imparfait": ["disais", "disais", "disait", "disions", "disiez", "disaient"]
                 }}
-            ]
+            ],
+            "perso": [] // Accueillera les verbes créés par l'utilisateur
         };
 
+        let database = JSON.parse(JSON.stringify(defaultDatabase));
         const pronoms = ["Je", "Tu", "Il / Elle / On", "Nous", "Vous", "Ils / Elles"];
         
-        // Elisions pour "Je" devant une voyelle
+        let gameState = {
+            selectedTime: "", selectedGroup: "", pool: [],
+            currentIndex: 0, score: 0, maxQuestions: 5, currentQuestion: null
+        };
+
+        // Charger les verbes personnalisés stockés au démarrage
+        window.addEventListener('load', () => {
+            const savedVerbs = localStorage.getItem('customVerbsCE1');
+            if (savedVerbs) {
+                database["perso"] = JSON.parse(savedVerbs);
+            }
+        });
+
+        function showAdmin() {
+            document.getElementById("setupScreen").classList.add("hidden");
+            document.getElementById("adminScreen").classList.remove("hidden");
+        }
+
+        function hideAdmin() {
+            document.getElementById("adminScreen").classList.add("hidden");
+            document.getElementById("setupScreen").classList.remove("hidden");
+        }
+
+        // Sauvegarder un verbe créé dans l'interface
+        function saveCustomVerb() {
+            const infinitif = document.getElementById("newInfinitif").value.trim().toLowerCase();
+            const groupe = document.getElementById("newGroup").value;
+
+            if (!infinitif) {
+                alert("Veuillez donner un infinitif au verbe !");
+                return;
+            }
+
+            // Structure dynamique pour stocker les conjugaisons saisies
+            let conjugaisons = { "présent": [], "futur": [], "imparfait": [] };
+            const inputs = document.querySelectorAll('.conj-input');
+            
+            let allFilled = true;
+            inputs.forEach(input => {
+                const time = input.getAttribute('data-time');
+                const idx = parseInt(input.getAttribute('data-index'));
+                const val = input.value.trim().toLowerCase();
+                
+                if (!val) allFilled = false;
+                conjugaisons[time][idx] = val;
+            });
+
+            if (!allFilled) {
+                alert("Attention : Vous devez remplir toutes les cases de conjugaison !");
+                return;
+            }
+
+            const newVerbObj = {
+                infinitif: infinitif,
+                groupe: groupe === "1er" ? "1er" : "3ème",
+                conjugaisons: conjugaisons
+            };
+
+            // Ajouter à notre base locale et sauvegarder dans le navigateur
+            database["perso"].push(newVerbObj);
+            localStorage.setItem('customVerbsCE1', JSON.stringify(database["perso"]));
+
+            alert(`Le verbe "${infinitif}" a bien été ajouté !`);
+            
+            // Reset du formulaire
+            document.getElementById("newInfinitif").value = "";
+            inputs.forEach(input => input.value = "");
+            hideAdmin();
+        }
+
+        function clearCustomVerbs() {
+            if (confirm("Voulez-vous vraiment effacer tous vos verbes personnalisés ?")) {
+                database["perso"] = [];
+                localStorage.removeItem('customVerbsCE1');
+                alert("Verbes effacés.");
+            }
+        }
+
         function ajusterPronom(pronom, verbeConjugue) {
-            if (pronom.toLowerCase() === "je") {
-                const voyelles = ["a", "e", "i", "o", "u", "é", "è", "ê", "â"];
+            if (pronom.toLowerCase() === "je" && verbeConjugue) {
+                const voyelles = ["a", "e", "i", "o", "u", "é", "è", "ê", "â", "h"];
                 if (voyelles.includes(verbeConjugue.charAt(0).toLowerCase())) {
                     return "J'";
                 }
@@ -365,25 +512,19 @@
             return pronom;
         }
 
-        let gameState = {
-            selectedTime: "",
-            selectedGroup: "",
-            pool: [],
-            currentIndex: 0,
-            score: 0,
-            maxQuestions: 5,
-            currentQuestion: null
-        };
-
         function startGame() {
             gameState.selectedTime = document.getElementById("timeSelect").value;
             gameState.selectedGroup = document.getElementById("groupSelect").value;
             
-            // Construction de la liste de verbes selon le choix
             if (gameState.selectedGroup === "tous") {
-                gameState.pool = [...database["1er"], ...database["3eme"]];
+                gameState.pool = [...database["1er"], ...database["3eme"], ...database["perso"]];
             } else {
                 gameState.pool = [...database[gameState.selectedGroup]];
+            }
+
+            if (gameState.pool.length === 0) {
+                alert("Il n'y a pas encore de verbe dans cette catégorie ! Ajoutez-en via la configuration avancée.");
+                return;
             }
 
             gameState.currentIndex = 0;
@@ -412,10 +553,16 @@
             actionBtn.textContent = "Vérifier ✔️";
             actionBtn.onclick = checkAnswer;
 
-            // Sélection aléatoire verbe + pronom
             const randomVerb = gameState.pool[Math.floor(Math.random() * gameState.pool.length)];
             const pIndex = Math.floor(Math.random() * pronoms.length);
             const rawPronoun = pronoms[pIndex];
+            
+            // Sécurité : Vérifie si le temps existe pour ce verbe (utile si ajout de futurs temps)
+            if(!randomVerb.conjugaisons[gameState.selectedTime]) {
+                generateQuestion(); // Re-pioche si le temps n'est pas configuré pour ce verbe
+                return;
+            }
+
             const correctSolution = randomVerb.conjugaisons[gameState.selectedTime][pIndex];
 
             gameState.currentQuestion = {
@@ -439,9 +586,8 @@
             
             document.getElementById("answerInput").disabled = true;
             feedbackBox.classList.remove("hidden");
-            feedbackBox.className = "feedback"; // reset classes
+            feedbackBox.className = "feedback"; 
 
-            // Utilisation sécurisée de textContent contre les failles XSS
             if (userInput === solution) {
                 gameState.score++;
                 feedbackBox.textContent = "Bravo ! C'est parfait ! 🎉";
@@ -474,7 +620,6 @@
             document.getElementById("currentInfo").textContent = appreciation;
             document.getElementById("feedbackBox").classList.add("hidden");
             
-            // Affichage propre du score final sans innerHTML vulnérable
             const promptZone = document.querySelector(".prompt-zone");
             promptZone.textContent = `Tu as obtenu ${gameState.score} étoile(s) sur ${gameState.maxQuestions} !`;
 
@@ -484,12 +629,10 @@
         }
 
         function resetGame() {
-            // Recharger proprement l'écran pour une nouvelle session
             location.reload();
         }
 
         function triggerConfetti() {
-            // Petits éclats visuels éphémères autour de la boîte
             for (let i = 0; i < 15; i++) {
                 const c = document.createElement("div");
                 c.className = "confetti";
@@ -501,11 +644,10 @@
             }
         }
 
-        // Enregistrement du Service Worker pour la PWA (mode hors-ligne)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker enregistré !', reg))
+                    .then(reg => console.log('Service Worker OK'))
                     .catch(err => console.log('Erreur SW', err));
             });
         }
