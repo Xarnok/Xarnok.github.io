@@ -60,13 +60,12 @@
             box-shadow: 0 10px 30px rgba(74, 144, 226, 0.15);
             border: 4px solid #D0E1FD;
             width: 100%;
-            max-width: 650px; /* Légèrement agrandi pour le confort visuel */
+            max-width: 650px;
             padding: 30px;
             text-align: center;
             position: relative;
         }
 
-        /* Tailles agrandies pour les grands écrans */
         @media (min-width: 768px) {
             h1 { font-size: 3rem; }
             .container { padding: 40px; max-width: 750px; }
@@ -129,16 +128,10 @@
             box-shadow: 0 2px 0px #27AE60;
         }
 
-        button.secondary {
-            background-color: var(--primary);
-            box-shadow: 0 6px 0px #2980B9;
-        }
+        button.secondary { background-color: var(--primary); box-shadow: 0 6px 0px #2980B9; }
         button.secondary:active { box-shadow: 0 2px 0px #2980B9; }
 
-        button.warning {
-            background-color: var(--orange);
-            box-shadow: 0 6px 0px #D35400;
-        }
+        button.warning { background-color: var(--orange); box-shadow: 0 6px 0px #D35400; }
         button.warning:active { box-shadow: 0 2px 0px #D35400; }
 
         button.admin-btn {
@@ -152,7 +145,6 @@
 
         .hidden { display: none !important; }
 
-        /* Tableau de bord de jeu */
         .score-board {
             display: flex;
             justify-content: space-between;
@@ -171,6 +163,7 @@
 
         .stars { color: var(--success); font-weight: 600; }
         .errors-count { color: var(--error); font-weight: 600; }
+        .lives-display { color: var(--error); font-weight: 600; font-size: 1.3rem; }
 
         .question-box {
             background: #FFF9E6;
@@ -229,9 +222,8 @@
         .feedback.correct { background-color: #E8F8F5; color: var(--success); }
         .feedback.wrong { background-color: #FCE4D6; color: var(--error); }
 
-        /* Liste des verbes (Dictionnaire) */
         .verbs-directory {
-            margin-top: 20px;
+            margin-top: 10px;
             text-align: left;
             background: #F0F4F8;
             padding: 15px;
@@ -250,7 +242,6 @@
             border: 1px solid #D0E1FD;
         }
 
-        /* Tableau Récapitulatif Final */
         .recap-table {
             width: 100%;
             border-collapse: collapse;
@@ -258,15 +249,11 @@
             font-size: 1rem;
             text-align: left;
         }
-        .recap-table th, .recap-table td {
-            padding: 10px;
-            border-bottom: 1px solid #E0E0E0;
-        }
+        .recap-table th, .recap-table td { padding: 10px; border-bottom: 1px solid #E0E0E0; }
         .recap-table th { background-color: #EDF5FF; color: var(--primary); }
         .row-correct { color: var(--success); }
         .row-wrong { color: var(--error); }
 
-        /* Formulaire Enseignant */
         .admin-screen { text-align: left; }
         .admin-screen h2 { color: var(--purple); margin-bottom: 15px; font-size: 1.6rem; text-align: center; }
         .sub-group { border: 2px solid #E0E0E0; padding: 15px; border-radius: 12px; margin-bottom: 15px; background: #FAFAFA; }
@@ -298,6 +285,7 @@
 
     <div class="container">
         
+        <!-- ÉCRAN CONFIGURATION -->
         <div id="setupScreen" class="setup-screen">
             <div class="field-group">
                 <label for="timeSelect">⏱️ Choisis le temps :</label>
@@ -305,22 +293,23 @@
                     <option value="présent">Présent</option>
                     <option value="futur">Futur</option>
                     <option value="imparfait">Imparfait</option>
-                    <option value="passé composé">Passé Composé</option>
+                    <option value="passé composé">Passé Composé 🌟</option>
+                    <option value="mélangé">✨ Tous les temps mélangés</option>
                 </select>
             </div>
 
             <div class="field-group">
                 <label for="groupSelect">📚 Choisis les verbes :</label>
-                <select id="groupSelect">
+                <select id="groupSelect" onchange="toggleLengthSelect()">
                     <option value="1er">1er groupe (10 verbes essentiels en -er)</option>
                     <option value="être">Le verbe ÊTRE</option>
                     <option value="avoir">Le verbe AVOIR</option>
-                    <option value="perso">Verbes ajoutés par l'enseignant</option>
-                    <option value="tous">Mélanger tous les verbes</option>
+                    <option value="perso">Verbes ajoutés par l'enseignant ✏️</option>
+                    <option value="tous">🏆 MODE DÉFI (Mélanger tous les verbes)</option>
                 </select>
             </div>
 
-            <div class="field-group">
+            <div class="field-group" id="lengthSelectGroup">
                 <label for="lengthSelect">🎯 Nombre de questions :</label>
                 <select id="lengthSelect">
                     <option value="5">5 questions</option>
@@ -332,18 +321,22 @@
 
             <button onclick="startGame()">C'est parti ! 🚀</button>
             
-            <div class="verbs-directory">
-                <h3>📖 Verbes disponibles dans votre jeu :</h3>
+            <!-- Liste des verbes masquée par défaut -->
+            <button class="secondary" style="font-size: 1rem; padding: 10px;" onclick="toggleVerbsDirectory()">Afficher les verbes disponibles 📖</button>
+            <div class="verbs-directory hidden" id="verbsDirectoryBlock">
+                <h3>📖 Liste complète :</h3>
                 <div id="verbsListContainer"></div>
             </div>
 
             <button class="admin-btn" onclick="showAdmin()">⚙️ Ajouter un verbe personnalisé</button>
         </div>
 
+        <!-- ÉCRAN DE JEU -->
         <div id="gameScreen" class="game-screen hidden">
             <div class="score-board">
                 <span id="questionCount">Question : 1 / 10</span>
                 <div class="counters">
+                    <span class="lives-display hidden" id="livesBlock">❤️❤️❤️❤️❤️</span>
                     <span class="stars" id="starsDisplay">⭐ 0</span>
                     <span class="errors-count" id="errorsDisplay">❌ 0</span>
                 </div>
@@ -368,8 +361,9 @@
             <button id="homeBtn" class="secondary hidden" onclick="resetGame()" style="margin-top: 15px;">Changer de niveau 🏠</button>
         </div>
 
+        <!-- ÉCRAN RÉCAPITULATIF FINAL -->
         <div id="recapScreen" class="hidden">
-            <h2>🏆 Vos résultats !</h2>
+            <h2 id="recapTitle">🏆 Vos résultats !</h2>
             <div id="finalScoreText" style="font-size: 1.4rem; margin: 15px 0; font-weight: 600;"></div>
             
             <table class="recap-table">
@@ -386,16 +380,17 @@
             <button class="secondary" onclick="resetGame()">Rejouer une partie 🔄</button>
         </div>
 
+        <!-- ÉCRAN ENSEIGNANT -->
         <div id="adminScreen" class="admin-screen hidden">
             <h2>⚙️ Ajouter un verbe personnalisé</h2>
             
             <div class="field-group" style="margin-bottom: 12px;">
                 <label for="newInfinitif">Verbe à l'infinitif :</label>
-                <input type="text" id="newInfinitif" placeholder="ex: finir, prendre, courir...">
+                <input type="text" id="newInfinitif" placeholder="ex: finir, prendre...">
             </div>
 
             <div class="field-group" style="margin-bottom: 15px;">
-                <label for="newGroup">Catégorie du verbe :</label>
+                <label for="newGroup">Catégorie :</label>
                 <select id="newGroup">
                     <option value="1er">1er groupe (en -er)</option>
                     <option value="perso">Autre verbe personnalisé</option>
@@ -452,109 +447,60 @@
 
             <button onclick="saveCustomVerb()">Sauvegarder le verbe 💾</button>
             <button class="secondary" onclick="hideAdmin()" style="margin-top: 10px;">Retour 🏠</button>
-            <button onclick="clearCustomVerbs()" style="background-color: var(--error); box-shadow: 0 6px 0px #C0392B; margin-top: 15px; font-size: 1rem; padding: 8px;">Effacer tous les verbes personnalisés 🗑️</button>
+            <button onclick="clearCustomVerbs()" style="background-color: var(--error); box-shadow: 0 6px 0px #C0392B; margin-top: 15px; font-size: 1rem; padding: 8px;">Effacer tous les verbes 🗑️</button>
         </div>
 
     </div>
 
     <script>
-        // Base de données : 10 verbes du 1er groupe + être + avoir + Passé composé intégré !
         const defaultDatabase = {
             "1er": [
-                { infinitif: "chanter", conjugaisons: {
-                    "présent": ["chante", "chantes", "chante", "chantons", "chantez", "chantent"],
-                    "futur": ["chanterai", "chanteras", "chantera", "chanterons", "chanterez", "chanteront"],
-                    "imparfait": ["chantais", "chantais", "chantait", "chantions", "chantiez", "chantaient"],
-                    "passé composé": ["ai chanté", "as chanté", "a chanté", "avons chanté", "avez chanté", "ont chanté"]
-                }},
-                { infinitif: "jouer", conjugaisons: {
-                    "présent": ["joue", "joues", "joue", "jouons", "jouez", "jouent"],
-                    "futur": ["jouerai", "joueras", "jouera", "jouerons", "jouerez", "joueront"],
-                    "imparfait": ["jouais", "jouais", "jouait", "jouions", "jouiez", "jouaient"],
-                    "passé composé": ["ai joué", "as joué", "a joué", "avons joué", "avez joué", "ont joué"]
-                }},
-                { infinitif: "manger", conjugaisons: {
-                    "présent": ["mange", "manges", "mange", "mangeons", "mangez", "mangent"],
-                    "futur": ["mangerai", "mangeras", "mangera", "mangerons", "mangerez", "mangeront"],
-                    "imparfait": ["mangeais", "mangeais", "mangeait", "mangions", "mangiez", "mangeaient"],
-                    "passé composé": ["ai mangé", "as mangé", "a mangé", "avons mangé", "avez mangé", "ont mangé"]
-                }},
-                { infinitif: "marcher", conjugaisons: {
-                    "présent": ["marche", "marches", "marche", "marchons", "marchez", "marchent"],
-                    "futur": ["marcherai", "marcheras", "marchera", "marcherons", "marcherez", "marcheront"],
-                    "imparfait": ["marchais", "marchais", "marchait", "marchions", "marchiez", "marchaient"],
-                    "passé composé": ["ai marché", "as marché", "a marché", "avons marché", "avez marché", "ont marché"]
-                }},
-                { infinitif: "parler", conjugaisons: {
-                    "présent": ["parle", "parles", "parle", "parlons", "parlez", "parlent"],
-                    "futur": ["parlerai", "parleras", "parlera", "parlerons", "parlerez", "parleront"],
-                    "imparfait": ["parlais", "parlais", "parlait", "parlions", "parliez", "parlaient"],
-                    "passé composé": ["ai parlé", "as parlé", "a parlé", "avons parlé", "avez parlé", "ont parlé"]
-                }},
-                { infinitif: "aimer", conjugaisons: {
-                    "présent": ["aime", "aimes", "aime", "aimons", "aimez", "aiment"],
-                    "futur": ["aimerai", "aimeras", "aimera", "aimerons", "aimerez", "aimeront"],
-                    "imparfait": ["aimais", "aimais", "aimait", "aimions", "aimiez", "aimaient"],
-                    "passé composé": ["ai aimé", "as aimé", "a aimé", "avons aimé", "avez aimé", "ont aimé"]
-                }},
-                { infinitif: "sauter", conjugaisons: {
-                    "présent": ["saute", "sautes", "saute", "sautons", "sautez", "sautent"],
-                    "futur": ["sauterai", "sauteras", "sautera", "sauterons", "sauterez", "sauteront"],
-                    "imparfait": ["sautais", "sautais", "sautait", "sautions", "sautiez", "sautaient"],
-                    "passé composé": ["ai sauté", "as sauté", "a sauté", "avons sauté", "avez sauté", "ont sauté"]
-                }},
-                { infinitif: "regarder", conjugaisons: {
-                    "présent": ["regarde", "regardes", "regarde", "regardons", "regardez", "regardent"],
-                    "futur": ["regarderai", "reganderas", "regardera", "regarderons", "regarderez", "regarderont"],
-                    "imparfait": ["regardais", "regardais", "regardait", "regardions", "regardiez", "regardaient"],
-                    "passé composé": ["ai regardé", "as regardé", "a regardé", "avons regardé", "avez regardé", "ont regardé"]
-                }},
-                { infinitif: "écouter", conjugaisons: {
-                    "présent": ["écoute", "écoutes", "écoute", "écoutons", "écoutez", "écoutent"],
-                    "futur": ["écouterai", "écouteras", "écoutera", "écouterons", "écouterez", "écouteront"],
-                    "imparfait": ["écoutais", "écoutais", "écoutait", "écoutions", "écoutiez", "écoutaient"],
-                    "passé composé": ["ai écouté", "as écouté", "a écouté", "avons écouté", "avez écouté", "ont écouté"]
-                }},
-                { infinitif: "laver", conjugaisons: {
-                    "présent": ["lave", "laves", "lave", "lavons", "lavez", "lavent"],
-                    "futur": ["laverai", "laveras", "lavera", "laverons", "laverez", "laveront"],
-                    "imparfait": ["lavais", "lavais", "lavait", "lavions", "laviez", "lavaient"],
-                    "passé composé": ["ai lavé", "as lavé", "a lavé", "avons lavé", "avez lavé", "ont lavé"]
-                }}
+                { infinitif: "chanter", conjugaisons: { "présent": ["chante", "chantes", "chante", "chantons", "chantez", "chantent"], "futur": ["chanterai", "chanteras", "chantera", "chanterons", "chanterez", "chanteront"], "imparfait": ["chantais", "chantais", "chantait", "chantions", "chantiez", "chantaient"], "passé composé": ["ai chanté", "as chanté", "a chanté", "avons chanté", "avez chanté", "ont chanté"] }},
+                { infinitif: "jouer", conjugaisons: { "présent": ["joue", "joues", "joue", "jouons", "jouez", "jouent"], "futur": ["jouerai", "joueras", "jouera", "jouerons", "jouerez", "joueront"], "imparfait": ["jouais", "jouais", "jouait", "jouions", "jouiez", "jouaient"], "passé composé": ["ai joué", "as joué", "a joué", "avons joué", "avez joué", "ont joué"] }},
+                { infinitif: "manger", conjugaisons: { "présent": ["mange", "manges", "mange", "mangeons", "mangez", "mangent"], "futur": ["mangerai", "mangeras", "mangera", "mangerons", "mangerez", "mangeront"], "imparfait": ["mangeais", "mangeais", "mangeait", "mangions", "mangiez", "mangeaient"], "passé composé": ["ai mangé", "as mangé", "a mangé", "avons mangé", "avez mangé", "ont mangé"] }},
+                { infinitif: "marcher", conjugaisons: { "présent": ["marche", "marches", "marche", "marchons", "marchez", "marchent"], "futur": ["marcherai", "marcheras", "marchera", "marcherons", "marcherez", "marcheront"], "imparfait": ["marchais", "marchais", "marchait", "marchions", "marchiez", "marchaient"], "passé composé": ["ai marché", "as marché", "a marché", "avons marché", "avez marché", "ont marché"] }},
+                { infinitif: "parler", conjugaisons: { "présent": ["parle", "parles", "parle", "parlons", "parlez", "parlent"], "futur": ["parlerai", "parleras", "parlera", "parlerons", "parlerez", "parleront"], "imparfait": ["parlais", "parlais", "parlait", "parlions", "parliez", "parlaient"], "passé composé": ["ai parlé", "as parlé", "a parlé", "avons parlé", "avez parlé", "ont parlé"] }},
+                { infinitif: "aimer", conjugaisons: { "présent": ["aime", "aimes", "aime", "aimons", "aimez", "aiment"], "futur": ["aimerai", "aimeras", "aimera", "aimerons", "aimerez", "aimeront"], "imparfait": ["aimais", "aimais", "aimait", "aimions", "aimiez", "aimaient"], "passé composé": ["ai aimé", "as aimé", "a aimé", "avons aimé", "avez aimé", "ont aimé"] }},
+                { infinitif: "sauter", conjugaisons: { "présent": ["saute", "sautes", "saute", "sautons", "sautez", "sautent"], "futur": ["sauterai", "sauteras", "sautera", "sauterons", "sauterez", "sauteront"], "imparfait": ["sautais", "sautais", "sautait", "sautions", "sautiez", "sautaient"], "passé composé": ["ai sauté", "as sauté", "a sauté", "avons sauté", "avez sauté", "ont sauté"] }},
+                { infinitif: "regarder", conjugaisons: { "présent": ["regarde", "regardes", "regarde", "regardons", "regardez", "regardent"], "futur": ["regarderai", "reganderas", "regardera", "regarderons", "regarderez", "regarderont"], "imparfait": ["regardais", "regardais", "regardait", "regardions", "regardiez", "regardaient"], "passé composé": ["ai regardé", "as regardé", "a regardé", "avons regardé", "avez regardé", "ont regardé"] }},
+                { infinitif: "écouter", conjugaisons: { "présent": ["écoute", "écoutes", "écoute", "écoutons", "écoutez", "écoutent"], "futur": ["écouterai", "écouteras", "écoutera", "écouterons", "écouterez", "écouteront"], "imparfait": ["écoutais", "écoutais", "écoutait", "écoutions", "écoutiez", "écoutaient"], "passé composé": ["ai écouté", "as écouté", "a écouté", "avons écouté", "avez écouté", "ont écouté"] }},
+                { infinitif: "laver", conjugaisons: { "présent": ["lave", "laves", "lave", "lavons", "lavez", "lavent"], "futur": ["laverai", "laveras", "lavera", "laverons", "laverez", "laveront"], "imparfait": ["lavais", "lavais", "lavait", "lavions", "laviez", "lavaient"], "passé composé": ["ai lavé", "as lavé", "a lavé", "avons lavé", "avez lavé", "ont lavé"] }}
             ],
-            "être": [
-                { infinitif: "être", conjugaisons: {
-                    "présent": ["suis", "es", "est", "sommes", "êtes", "sont"],
-                    "futur": ["serai", "seras", "sera", "serons", "serez", "seront"],
-                    "imparfait": ["étais", "étais", "était", "étions", "étiez", "étaient"],
-                    "passé composé": ["ai été", "as été", "a été", "avons été", "avez été", "ont été"]
-                }}
-            ],
-            "avoir": [
-                { infinitif: "avoir", conjugaisons: {
-                    "présent": ["ai", "as", "a", "avons", "avez", "ont"],
-                    "futur": ["aurai", "auras", "aura", "aurons", "aurez", "auront"],
-                    "imparfait": ["avais", "avais", "avait", "avions", "aviez", "avaient"],
-                    "passé composé": ["ai eu", "as eu", "a eu", "avons eu", "avez eu", "ont eu"]
-                }}
-            ],
+            "être": [{ infinitif: "être", conjugaisons: { "présent": ["suis", "es", "est", "sommes", "êtes", "sont"], "futur": ["serai", "seras", "sera", "serons", "serez", "seront"], "imparfait": ["étais", "étais", "était", "étions", "étiez", "étaient"], "passé composé": ["ai été", "as été", "a été", "avons été", "avez été", "ont été"] }}],
+            "avoir": [{ infinitif: "avoir", conjugaisons: { "présent": ["ai", "as", "a", "avons", "avez", "ont"], "futur": ["aurai", "auras", "aura", "aurons", "aurez", "auront"], "imparfait": ["avais", "avais", "avait", "avions", "aviez", "avaient"], "passé composé": ["ai eu", "as eu", "a eu", "avons eu", "avez eu", "ont eu"] }}],
             "perso": []
         };
 
         let database = JSON.parse(JSON.stringify(defaultDatabase));
         const pronoms = ["Je", "Tu", "Il / Elle / On", "Nous", "Vous", "Ils / Elles"];
+        const tempsDisponibles = ["présent", "futur", "imparfait", "passé composé"];
         
         let gameState = {
             selectedTime: "", selectedGroup: "", pool: [],
             currentIndex: 0, score: 0, errors: 0, maxQuestions: 10, 
-            currentQuestion: null, lastVerb: null, historyCombo: [], gameHistory: []
+            currentQuestion: null, lastVerb: null, historyCombo: [], gameHistory: [],
+            isChallengeMode: false, lives: 5
         };
 
         window.addEventListener('load', () => {
-            const savedVerbs = localStorage.getItem('customVerbsCE1_v3');
+            const savedVerbs = localStorage.getItem('customVerbsCE1_v4');
             if (savedVerbs) { database["perso"] = JSON.parse(savedVerbs); }
             renderVerbsDirectory();
         });
+
+        function toggleVerbsDirectory() {
+            document.getElementById("verbsDirectoryBlock").classList.toggle("hidden");
+        }
+
+        function toggleLengthSelect() {
+            const group = document.getElementById("groupSelect").value;
+            const lengthBlock = document.getElementById("lengthSelectGroup");
+            if (group === "tous") {
+                lengthBlock.classList.add("hidden"); // Forcé à 20 en mode Défi
+            } else {
+                lengthBlock.classList.remove("hidden");
+            }
+        }
 
         function renderVerbsDirectory() {
             const container = document.getElementById("verbsListContainer");
@@ -595,10 +541,10 @@
                 if (conjugaisons[time]) conjugaisons[time][idx] = val;
             });
 
-            if (!allFilled) { alert("Veuillez remplir TOUTES les cases de conjugaison."); return; }
+            if (!allFilled) { alert("Veuillez remplir toutes les cases."); return; }
 
             database["perso"].push({ infinitif: infinitif, conjugaisons: conjugaisons });
-            localStorage.setItem('customVerbsCE1_v3', JSON.stringify(database["perso"]));
+            localStorage.setItem('customVerbsCE1_v4', JSON.stringify(database["perso"]));
             alert(`Le verbe "${infinitif}" a été ajouté !`);
             
             document.getElementById("newInfinitif").value = "";
@@ -609,7 +555,7 @@
         function clearCustomVerbs() {
             if (confirm("Effacer tous vos verbes personnalisés ?")) {
                 database["perso"] = [];
-                localStorage.removeItem('customVerbsCE1_v3');
+                localStorage.removeItem('customVerbsCE1_v4');
                 renderVerbsDirectory();
                 alert("Verbes effacés.");
             }
@@ -626,12 +572,19 @@
         function startGame() {
             gameState.selectedTime = document.getElementById("timeSelect").value;
             gameState.selectedGroup = document.getElementById("groupSelect").value;
-            gameState.maxQuestions = parseInt(document.getElementById("lengthSelect").value);
             
             if (gameState.selectedGroup === "tous") {
+                gameState.isChallengeMode = true;
+                gameState.maxQuestions = 20;
+                gameState.lives = 5;
                 gameState.pool = [...database["1er"], ...database["être"], ...database["avoir"], ...database["perso"]];
+                document.getElementById("livesBlock").classList.remove("hidden");
+                updateLivesDisplay();
             } else {
+                gameState.isChallengeMode = false;
+                gameState.maxQuestions = parseInt(document.getElementById("lengthSelect").value);
                 gameState.pool = [...database[gameState.selectedGroup]];
+                document.getElementById("livesBlock").classList.add("hidden");
             }
 
             if (gameState.pool.length === 0) {
@@ -653,9 +606,20 @@
             generateQuestion();
         }
 
+        function updateLivesDisplay() {
+            let hearts = "";
+            for(let i=0; i<5; i++) {
+                hearts += (i < gameState.lives) ? "❤️" : "🖤";
+            }
+            document.getElementById("livesBlock").textContent = hearts;
+        }
+
         function generateQuestion() {
             gameState.currentIndex++;
-            if (gameState.currentIndex > gameState.maxQuestions) { showRecap(); return; }
+            if (gameState.currentIndex > gameState.maxQuestions || (gameState.isChallengeMode && gameState.lives <= 0)) { 
+                showRecap(); 
+                return; 
+            }
 
             document.getElementById("questionCount").textContent = `Question : ${gameState.currentIndex} / ${gameState.maxQuestions}`;
             document.getElementById("feedbackBox").classList.add("hidden");
@@ -669,7 +633,7 @@
             actionBtn.textContent = "Vérifier ✔️";
             actionBtn.onclick = checkAnswer;
 
-            // Sélection intelligente (Anti-répétition et anti-doublon)
+            // Choix du verbe et pronom sans doublons
             let validSelection = false;
             let randomVerb, pIndex, rawPronoun, comboId;
             let safetyCounter = 0;
@@ -681,22 +645,25 @@
                 rawPronoun = pronoms[pIndex];
                 comboId = `${randomVerb.infinitif}_${pIndex}`;
 
-                // Règles d'exclusion
                 const isSameAsLast = (gameState.pool.length > 1 && gameState.lastVerb === randomVerb.infinitif);
                 const isComboAlreadyUsed = gameState.historyCombo.includes(comboId);
 
-                if (!isSameAsLast && !isComboAlreadyUsed) {
-                    validSelection = true;
-                }
+                if (!isSameAsLast && !isComboAlreadyUsed) { validSelection = true; }
             }
 
             gameState.lastVerb = randomVerb.infinitif;
             gameState.historyCombo.push(comboId);
 
-            const correctSolution = randomVerb.conjugaisons[gameState.selectedTime][pIndex];
+            // Gestion dynamique du temps de conjugaison
+            let currentActiveTime = gameState.selectedTime;
+            if (gameState.selectedTime === "mélangé") {
+                currentActiveTime = tempsDisponibles[Math.floor(Math.random() * tempsDisponibles.length)];
+            }
+
+            const correctSolution = randomVerb.conjugaisons[currentActiveTime][pIndex];
             gameState.currentQuestion = {
                 verb: randomVerb.infinitif,
-                time: gameState.selectedTime,
+                time: currentActiveTime,
                 pronoun: rawPronoun,
                 solution: correctSolution,
                 attempts: 0,
@@ -704,7 +671,7 @@
             };
 
             document.getElementById("currentVerb").textContent = randomVerb.infinitif;
-            document.getElementById("currentInfo").textContent = `${gameState.selectedTime}`;
+            document.getElementById("currentInfo").textContent = `${currentActiveTime}`;
             document.getElementById("currentPronoun").textContent = ajusterPronom(rawPronoun, correctSolution);
             input.focus();
         }
@@ -719,7 +686,6 @@
             feedbackBox.className = "feedback"; 
 
             if (userInput === solution) {
-                // Succès !
                 if (gameState.currentQuestion.attempts === 0) {
                     gameState.score++;
                     document.getElementById("starsDisplay").textContent = `⭐ ${gameState.score}`;
@@ -727,22 +693,41 @@
                 feedbackBox.textContent = "Bravo ! C'est parfait ! 🎉";
                 feedbackBox.classList.add("correct");
                 gameState.currentQuestion.userAnswer = input.value.trim() + " ✔️";
+                document.getElementById("revealBtn").classList.add("hidden"); // Cache l'aide si trouvé au 2e essai
                 triggerConfetti();
                 goToNextStep();
             } else {
-                // Erreur !
                 gameState.currentQuestion.attempts++;
                 gameState.errors++;
                 document.getElementById("errorsDisplay").textContent = `❌ ${gameState.errors}`;
                 
-                feedbackBox.textContent = "Aïe, ce n'est pas tout à fait ça... Réessaie ! ❌";
-                feedbackBox.classList.add("wrong");
-                input.value = "";
-                input.focus();
+                if (gameState.isChallengeMode) {
+                    // Mode Défi : Pas de seconde chance, perte d'une vie immédiate
+                    gameState.lives--;
+                    updateLivesDisplay();
+                    feedbackBox.textContent = `Dommage ! Il fallait écrire : ${gameState.currentQuestion.solution} ❌`;
+                    feedbackBox.classList.add("wrong");
+                    gameState.currentQuestion.userAnswer = (input.value.trim() || "Aucune réponse") + " ❌";
+                    
+                    if (gameState.lives <= 0) {
+                        const actionBtn = document.getElementById("actionBtn");
+                        actionBtn.textContent = "Fin du Défi 🏁";
+                        actionBtn.onclick = showRecap;
+                        input.disabled = true;
+                    } else {
+                        goToNextStep();
+                    }
+                } else {
+                    // Mode normal : l'enfant peut réessayer
+                    feedbackBox.textContent = "Aïe, ce n'est pas tout à fait ça... Réessaie ! ❌";
+                    feedbackBox.classList.add("wrong");
+                    input.value = "";
+                    input.focus();
 
-                // Proposer de l'aide si l'enfant bloque
-                if (gameState.currentQuestion.attempts >= 1) {
-                    document.getElementById("revealBtn").classList.remove("hidden");
+                    // Bouton d'aide disponible immédiatement après la 1ère erreur
+                    if (gameState.currentQuestion.attempts === 1) {
+                        document.getElementById("revealBtn").classList.remove("hidden");
+                    }
                 }
             }
         }
@@ -752,7 +737,7 @@
             feedbackBox.textContent = `La bonne réponse était : ${gameState.currentQuestion.solution} 💡`;
             feedbackBox.className = "feedback wrong";
             
-            gameState.currentQuestion.userAnswer = document.getElementById("answerInput").value.trim() || "Aucune réponse";
+            gameState.currentQuestion.userAnswer = (document.getElementById("answerInput").value.trim() || "Langue au chat") + " 💡";
             document.getElementById("answerInput").disabled = true;
             document.getElementById("revealBtn").classList.add("hidden");
             
@@ -764,7 +749,10 @@
             gameState.gameHistory.push(JSON.parse(JSON.stringify(gameState.currentQuestion)));
 
             const actionBtn = document.getElementById("actionBtn");
-            if (gameState.currentIndex < gameState.maxQuestions) {
+            if (gameState.isChallengeMode && gameState.lives <= 0) {
+                actionBtn.textContent = "Voir le récapitulatif 🏁";
+                actionBtn.onclick = showRecap;
+            } else if (gameState.currentIndex < gameState.maxQuestions) {
                 actionBtn.textContent = "Continuer ➡️";
                 actionBtn.onclick = generateQuestion;
             } else {
@@ -778,7 +766,15 @@
             document.getElementById("recapScreen").classList.remove("hidden");
 
             const finalScoreText = document.getElementById("finalScoreText");
-            finalScoreText.textContent = `Série terminée ! Score parfait : ${gameState.score} / ${gameState.maxQuestions} ⭐ (Total d'essais erronés : ${gameState.errors} ❌)`;
+            const recapTitle = document.getElementById("recapTitle");
+
+            if (gameState.isChallengeMode && gameState.lives <= 0) {
+                recapTitle.textContent = "💥 Défi Terminé (Plus de vies !)";
+            } else {
+                recapTitle.textContent = "🏆 Vos résultats !";
+            }
+
+            finalScoreText.textContent = `Score final : ${gameState.score} / ${gameState.gameHistory.length} ⭐ (Erreurs commises : ${gameState.errors} ❌)`;
 
             const tbody = document.getElementById("recapTableBody");
             tbody.innerHTML = "";
@@ -789,7 +785,7 @@
                 tr.className = isCorrect ? "row-correct" : "row-wrong";
 
                 const tdQ = document.createElement("td");
-                tdQ.textContent = `${index + 1}) ${ajusterPronom(q.pronoun, q.solution)} [${q.verb}]`;
+                tdQ.textContent = `${index + 1}) ${ajusterPronom(q.pronoun, q.solution)} [${q.verb}] (${q.time})`;
 
                 const tdUser = document.createElement("td");
                 tdUser.textContent = q.userAnswer;
@@ -797,16 +793,12 @@
                 const tdSol = document.createElement("td");
                 tdSol.textContent = q.solution;
 
-                tr.appendChild(tdQ);
-                tr.appendChild(tdUser);
-                tr.appendChild(tdSol);
+                tr.appendChild(tdQ); tr.appendChild(tdUser); tr.appendChild(tdSol);
                 tbody.appendChild(tr);
             });
         }
 
-        function resetGame() {
-            location.reload();
-        }
+        function resetGame() { location.reload(); }
 
         function triggerConfetti() {
             for (let i = 0; i < 15; i++) {
