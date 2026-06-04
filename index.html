@@ -256,12 +256,10 @@
             object-fit: contain;
         }
 
-        /* Animation standard à l'apparition */
         .anim-normal {
             animation: popIn 0.5s ease-out forwards;
         }
 
-        /* Animation Bonus 100% (Zoom + Battement de coeur festif) */
         .anim-bonus-100 {
             animation: superPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, heartbeat 1.5s infinite ease-in-out 0.6s;
         }
@@ -407,7 +405,6 @@
         <div id="recapScreen" class="hidden">
             <h2 id="recapTitle">🏆 Vos résultats !</h2>
             
-            <!-- Zone d'affichage de la photo palier dynamique -->
             <div class="reward-image-container">
                 <img id="rewardImgSlot" src="" alt="Badge de réussite" class="reward-img">
             </div>
@@ -732,10 +729,10 @@
             feedbackBox.className = "feedback"; 
 
             if (userInput === solution) {
-                if (gameState.currentQuestion.attempts === 0) {
-                    gameState.score++;
-                    document.getElementById("starsDisplay").textContent = `⭐ ${gameState.score}`;
-                }
+                // Succès (au 1er ou au 2e essai !)
+                gameState.score++;
+                document.getElementById("starsDisplay").textContent = `⭐ ${gameState.score}`;
+                
                 feedbackBox.textContent = "Bravo ! C'est parfait ! 🎉";
                 feedbackBox.classList.add("correct");
                 gameState.currentQuestion.userAnswer = input.value.trim() + " ✔️";
@@ -744,10 +741,10 @@
                 goToNextStep();
             } else {
                 gameState.currentQuestion.attempts++;
-                gameState.errors++;
-                document.getElementById("errorsDisplay").textContent = `❌ ${gameState.errors}`;
                 
                 if (gameState.isChallengeMode) {
+                    gameState.errors++;
+                    document.getElementById("errorsDisplay").textContent = `❌ ${gameState.errors}`;
                     gameState.lives--;
                     updateLivesDisplay();
                     feedbackBox.textContent = `Dommage ! Il fallait écrire : ${gameState.currentQuestion.solution} ❌`;
@@ -763,6 +760,7 @@
                         goToNextStep();
                     }
                 } else {
+                    // Mode normal : on signale juste, on ne compte pas encore de faute définitive
                     feedbackBox.textContent = "Aïe, ce n'est pas tout à fait ça... Réessaie ! ❌";
                     feedbackBox.classList.add("wrong");
                     input.value = "";
@@ -776,11 +774,15 @@
         }
 
         function revealSolution() {
+            // Abandon -> Là, on compte l'erreur
+            gameState.errors++;
+            document.getElementById("errorsDisplay").textContent = `❌ ${gameState.errors}`;
+
             const feedbackBox = document.getElementById("feedbackBox");
             feedbackBox.textContent = `La bonne réponse était : ${gameState.currentQuestion.solution} 💡`;
             feedbackBox.className = "feedback wrong";
             
-            gameState.currentQuestion.userAnswer = (document.getElementById("answerInput").value.trim() || "Langue au chat") + " 💡";
+            gameState.currentQuestion.userAnswer = (document.getElementById("answerInput").value.trim() || "Langue au chat") + " 💡 (Donné sa langue au chat)";
             document.getElementById("answerInput").disabled = true;
             document.getElementById("revealBtn").classList.add("hidden");
             
@@ -818,13 +820,12 @@
                 recapTitle.textContent = "🏆 Vos résultats !";
             }
 
-            finalScoreText.textContent = `Score final : ${gameState.score} / ${gameState.gameHistory.length} ⭐ (Erreurs commises : ${gameState.errors} ❌)`;
+            finalScoreText.textContent = `Score final : ${gameState.score} / ${gameState.gameHistory.length} ⭐ (Abandons : ${gameState.errors} 🐱)`;
 
-            // Calcul du pourcentage pour choisir le palier d'image
             const totalQuestions = gameState.gameHistory.length;
+            // Le calcul se base strictement sur le nombre d'étoiles décrochées
             const ratio = totalQuestions > 0 ? (gameState.score / totalQuestions) * 100 : 0;
 
-            // Attribution de l'image et de l'animation selon le pourcentage
             if (ratio < 25) {
                 imgSlot.src = "images/palier1.png";
                 imgSlot.className = "reward-img anim-normal";
@@ -839,11 +840,10 @@
                 imgSlot.className = "reward-img anim-normal";
             } else if (ratio === 100) {
                 imgSlot.src = "images/palier5.png";
-                imgSlot.className = "reward-img anim-bonus-100"; // Animation battement de coeur !
-                triggerConfetti(); // Double dose de joie
+                imgSlot.className = "reward-img anim-bonus-100"; 
+                triggerConfetti(); 
             }
 
-            // Gestion de l'erreur si l'image est manquante dans GitHub (évite un carré cassé)
             imgSlot.onerror = function() {
                 this.style.display = 'none'; 
             };
