@@ -242,6 +242,49 @@
             border: 1px solid #D0E1FD;
         }
 
+        /* --- Zone Image Récompense Finale --- */
+        .reward-image-container {
+            margin: 15px auto;
+            max-width: 180px;
+            height: auto;
+        }
+
+        .reward-img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        /* Animation standard à l'apparition */
+        .anim-normal {
+            animation: popIn 0.5s ease-out forwards;
+        }
+
+        /* Animation Bonus 100% (Zoom + Battement de coeur festif) */
+        .anim-bonus-100 {
+            animation: superPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, heartbeat 1.5s infinite ease-in-out 0.6s;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes superPop {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            70% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            20% { transform: scale(1.08); }
+            40% { transform: scale(1); }
+            60% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
         .recap-table {
             width: 100%;
             border-collapse: collapse;
@@ -321,7 +364,6 @@
 
             <button onclick="startGame()">C'est parti ! 🚀</button>
             
-            <!-- Liste des verbes masquée par défaut -->
             <button class="secondary" style="font-size: 1rem; padding: 10px;" onclick="toggleVerbsDirectory()">Afficher les verbes disponibles 📖</button>
             <div class="verbs-directory hidden" id="verbsDirectoryBlock">
                 <h3>📖 Liste complète :</h3>
@@ -364,6 +406,12 @@
         <!-- ÉCRAN RÉCAPITULATIF FINAL -->
         <div id="recapScreen" class="hidden">
             <h2 id="recapTitle">🏆 Vos résultats !</h2>
+            
+            <!-- Zone d'affichage de la photo palier dynamique -->
+            <div class="reward-image-container">
+                <img id="rewardImgSlot" src="" alt="Badge de réussite" class="reward-img">
+            </div>
+
             <div id="finalScoreText" style="font-size: 1.4rem; margin: 15px 0; font-weight: 600;"></div>
             
             <table class="recap-table">
@@ -483,7 +531,7 @@
         };
 
         window.addEventListener('load', () => {
-            const savedVerbs = localStorage.getItem('customVerbsCE1_v4');
+            const savedVerbs = localStorage.getItem('customVerbsCE1_v5');
             if (savedVerbs) { database["perso"] = JSON.parse(savedVerbs); }
             renderVerbsDirectory();
         });
@@ -496,7 +544,7 @@
             const group = document.getElementById("groupSelect").value;
             const lengthBlock = document.getElementById("lengthSelectGroup");
             if (group === "tous") {
-                lengthBlock.classList.add("hidden"); // Forcé à 20 en mode Défi
+                lengthBlock.classList.add("hidden");
             } else {
                 lengthBlock.classList.remove("hidden");
             }
@@ -527,7 +575,7 @@
 
         function saveCustomVerb() {
             const infinitif = document.getElementById("newInfinitif").value.trim().toLowerCase();
-            if (!infinitif) { alert("Veuillez donner un infinitif au verbe !"); return; }
+            if (!infinitif) { alert("Veuillez donner un infinitif !"); return; }
 
             let conjugaisons = { "présent": [], "futur": [], "imparfait": [], "passé composé": [] };
             const inputs = document.querySelectorAll('.conj-input');
@@ -544,7 +592,7 @@
             if (!allFilled) { alert("Veuillez remplir toutes les cases."); return; }
 
             database["perso"].push({ infinitif: infinitif, conjugaisons: conjugaisons });
-            localStorage.setItem('customVerbsCE1_v4', JSON.stringify(database["perso"]));
+            localStorage.setItem('customVerbsCE1_v5', JSON.stringify(database["perso"]));
             alert(`Le verbe "${infinitif}" a été ajouté !`);
             
             document.getElementById("newInfinitif").value = "";
@@ -555,7 +603,7 @@
         function clearCustomVerbs() {
             if (confirm("Effacer tous vos verbes personnalisés ?")) {
                 database["perso"] = [];
-                localStorage.removeItem('customVerbsCE1_v4');
+                localStorage.removeItem('customVerbsCE1_v5');
                 renderVerbsDirectory();
                 alert("Verbes effacés.");
             }
@@ -633,7 +681,6 @@
             actionBtn.textContent = "Vérifier ✔️";
             actionBtn.onclick = checkAnswer;
 
-            // Choix du verbe et pronom sans doublons
             let validSelection = false;
             let randomVerb, pIndex, rawPronoun, comboId;
             let safetyCounter = 0;
@@ -654,7 +701,6 @@
             gameState.lastVerb = randomVerb.infinitif;
             gameState.historyCombo.push(comboId);
 
-            // Gestion dynamique du temps de conjugaison
             let currentActiveTime = gameState.selectedTime;
             if (gameState.selectedTime === "mélangé") {
                 currentActiveTime = tempsDisponibles[Math.floor(Math.random() * tempsDisponibles.length)];
@@ -693,7 +739,7 @@
                 feedbackBox.textContent = "Bravo ! C'est parfait ! 🎉";
                 feedbackBox.classList.add("correct");
                 gameState.currentQuestion.userAnswer = input.value.trim() + " ✔️";
-                document.getElementById("revealBtn").classList.add("hidden"); // Cache l'aide si trouvé au 2e essai
+                document.getElementById("revealBtn").classList.add("hidden"); 
                 triggerConfetti();
                 goToNextStep();
             } else {
@@ -702,7 +748,6 @@
                 document.getElementById("errorsDisplay").textContent = `❌ ${gameState.errors}`;
                 
                 if (gameState.isChallengeMode) {
-                    // Mode Défi : Pas de seconde chance, perte d'une vie immédiate
                     gameState.lives--;
                     updateLivesDisplay();
                     feedbackBox.textContent = `Dommage ! Il fallait écrire : ${gameState.currentQuestion.solution} ❌`;
@@ -718,13 +763,11 @@
                         goToNextStep();
                     }
                 } else {
-                    // Mode normal : l'enfant peut réessayer
                     feedbackBox.textContent = "Aïe, ce n'est pas tout à fait ça... Réessaie ! ❌";
                     feedbackBox.classList.add("wrong");
                     input.value = "";
                     input.focus();
 
-                    // Bouton d'aide disponible immédiatement après la 1ère erreur
                     if (gameState.currentQuestion.attempts === 1) {
                         document.getElementById("revealBtn").classList.remove("hidden");
                     }
@@ -767,6 +810,7 @@
 
             const finalScoreText = document.getElementById("finalScoreText");
             const recapTitle = document.getElementById("recapTitle");
+            const imgSlot = document.getElementById("rewardImgSlot");
 
             if (gameState.isChallengeMode && gameState.lives <= 0) {
                 recapTitle.textContent = "💥 Défi Terminé (Plus de vies !)";
@@ -775,6 +819,35 @@
             }
 
             finalScoreText.textContent = `Score final : ${gameState.score} / ${gameState.gameHistory.length} ⭐ (Erreurs commises : ${gameState.errors} ❌)`;
+
+            // Calcul du pourcentage pour choisir le palier d'image
+            const totalQuestions = gameState.gameHistory.length;
+            const ratio = totalQuestions > 0 ? (gameState.score / totalQuestions) * 100 : 0;
+
+            // Attribution de l'image et de l'animation selon le pourcentage
+            if (ratio < 25) {
+                imgSlot.src = "images/palier1.png";
+                imgSlot.className = "reward-img anim-normal";
+            } else if (ratio >= 25 && ratio < 50) {
+                imgSlot.src = "images/palier2.png";
+                imgSlot.className = "reward-img anim-normal";
+            } else if (ratio >= 50 && ratio < 75) {
+                imgSlot.src = "images/palier3.png";
+                imgSlot.className = "reward-img anim-normal";
+            } else if (ratio >= 75 && ratio < 100) {
+                imgSlot.src = "images/palier4.png";
+                imgSlot.className = "reward-img anim-normal";
+            } else if (ratio === 100) {
+                imgSlot.src = "images/palier5.png";
+                imgSlot.className = "reward-img anim-bonus-100"; // Animation battement de coeur !
+                triggerConfetti(); // Double dose de joie
+            }
+
+            // Gestion de l'erreur si l'image est manquante dans GitHub (évite un carré cassé)
+            imgSlot.onerror = function() {
+                this.style.display = 'none'; 
+            };
+            imgSlot.style.display = 'block';
 
             const tbody = document.getElementById("recapTableBody");
             tbody.innerHTML = "";
@@ -801,11 +874,11 @@
         function resetGame() { location.reload(); }
 
         function triggerConfetti() {
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 25; i++) {
                 const c = document.createElement("div");
                 c.className = "confetti";
                 c.style.left = Math.random() * 100 + "%";
-                c.style.background = ["#F1C40F", "#2ECC71", "#E74C3C", "#3498DB"][Math.floor(Math.random() * 4)];
+                c.style.background = ["#F1C40F", "#2ECC71", "#E74C3C", "#3498DB", "#9B59B6"][Math.floor(Math.random() * 5)];
                 c.style.animationDelay = Math.random() * 0.5 + "s";
                 document.querySelector(".container").appendChild(c);
                 setTimeout(() => c.remove(), 1500);
