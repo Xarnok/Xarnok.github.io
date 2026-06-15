@@ -1,4 +1,4 @@
-const CACHE_NAME = 'conjugaison-ce1-v1';
+const CACHE_NAME = 'conjugaison-ce1-v2';
 const ASSETS = [
   'index.html',
   'manifest.json',
